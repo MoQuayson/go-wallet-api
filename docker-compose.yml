@@ -1,0 +1,75 @@
+services:
+  #API
+  backend:
+    container_name: wallet-api
+    build:
+      context: backend
+      target: builder
+    environment:
+      - PORT=8080
+      - SEED_ADMIN=true
+      - DB_HOST=host.internal.docker
+      - DB_NAME=wallet_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+
+
+    secrets:
+      - db-password
+    depends_on:
+      - db-postgres
+      - pgadmin
+    networks:
+      - wallet-hub  
+
+
+  
+  #DB
+  db-postgres:
+    container_name: db-postgres
+    image: postgres
+    restart: always
+    secrets:
+      - db-password
+    volumes:
+      - ./db/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=blog
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+    ports:
+      - 5432:5432
+    networks:
+      - wallet-hub
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgAdmin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db-postgres 
+    volumes:
+      - ./db/postgres/pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: password 
+   
+    #Webserver proxy
+  proxy:
+    container_name: web-server
+    image: nginx
+    volumes:
+      - type: bind
+        source: ./proxy/nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+    networks:
+      - wallet-hub
+
+networks:
+  wallet-hub:
