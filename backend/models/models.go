@@ -13,3 +13,9 @@ type ValidationError struct {
 	Tag     string
 	Message interface{}
 }
+
+// Only use this as a struct for channels
+type DBResponse struct {
+	Data  interface{}
+	Error error
+}

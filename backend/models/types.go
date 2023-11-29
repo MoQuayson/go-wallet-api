@@ -10,8 +10,20 @@ type NullString struct {
 	sql.NullString
 }
 
-// type NullString sql.NullString
-var nullString NullString
+var nullString *NullString
+
+// func NullString() *NullString {
+// 	return nullString
+// }
+
+func ConvertToNullString(v string) NullString {
+	return NullString{
+		sql.NullString{
+			String: v,
+			Valid:  true,
+		},
+	}
+}
 
 func (NullString) FromString(v string) NullString {
 	return NullString{
