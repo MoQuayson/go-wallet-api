@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"fmt"
-	"go-wallet-api/config"
 	"go-wallet-api/models"
+	"go-wallet-api/repositories"
 	"go-wallet-api/requests"
+	"go-wallet-api/services"
 	"net/http"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -14,17 +16,18 @@ import (
 // Get All Wallets
 func GetAllWalletsHandler(ctx *fiber.Ctx) error {
 
-	Wallets, err := models.GetAllWallets(config.DbCtx)
+	s := services.GetWalletService()
+	Wallets, err := s.FindAll()
 	if err != nil {
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when retrieving wallet data",
+			Message: models.GET_WALLET_SUCCESS,
 		})
 	}
 
 	return ctx.Status(200).JSON(&models.APIResponse{
 		Code:    200,
-		Message: "Wallets retrieved successfully",
+		Message: models.GET_WALLET_SUCCESS,
 		Data:    Wallets,
 	})
 }
@@ -32,11 +35,12 @@ func GetAllWalletsHandler(ctx *fiber.Ctx) error {
 func GetWalletByIdHandler(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
-	wallet, err := models.GetWalletById(id, config.DbCtx)
+	s := services.GetWalletService()
+	wallet, err := s.FindById(id)
 	if err != nil {
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when retrieving wallet data",
+			Message: models.GET_WALLET_ERR,
 		})
 	}
 
@@ -44,14 +48,14 @@ func GetWalletByIdHandler(ctx *fiber.Ctx) error {
 
 		return ctx.Status(404).JSON(&models.APIResponse{
 			Code:    404,
-			Message: "Wallet does not exist!",
+			Message: models.WALLET_NOT_FOUND,
 			Data:    nil,
 		})
 	}
 
 	return ctx.Status(200).JSON(&models.APIResponse{
 		Code:    200,
-		Message: "Wallet retrieved successfully",
+		Message: models.GET_WALLET_SUCCESS,
 		Data:    wallet,
 	})
 }
@@ -64,11 +68,13 @@ func CreateWalletHandler(ctx *fiber.Ctx) error {
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when creating user",
+			Message: models.CREATE_WALLET_ERR,
 		})
 	}
 
-	walletCount := models.GetUserWalletCount(payload.Owner, config.DbCtx)
+	s := services.GetWalletService()
+
+	walletCount := s.WalletsCount(payload.Owner)
 
 	if walletCount >= models.MAX_WALLET_COUNT {
 		return ctx.Status(http.StatusBadRequest).JSON(&models.APIResponse{
@@ -79,16 +85,16 @@ func CreateWalletHandler(ctx *fiber.Ctx) error {
 
 	//return nil
 
-	if wallet, err = models.CreateNewWallet(payload, config.DbCtx); err != nil {
+	if wallet, err = s.CreateNewWallet(payload); err != nil {
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when creating wallet",
+			Message: models.CREATE_WALLET_ERR,
 		})
 	}
 
-	return ctx.Status(200).JSON(&models.APIResponse{
-		Code:    200,
-		Message: "Wallet added successfully",
+	return ctx.Status(201).JSON(&models.APIResponse{
+		Code:    201,
+		Message: models.CREATE_WALLET_SUCCESS,
 		Data:    wallet,
 	})
 }
@@ -96,17 +102,16 @@ func CreateWalletHandler(ctx *fiber.Ctx) error {
 func UpdateWalletHandler(ctx *fiber.Ctx) error {
 	payload := requests.WalletRequest{}
 	walletId := ctx.Params("id")
-	var wallet models.Wallet
-	var err error
 
 	if err := ctx.BodyParser(&payload); err != nil {
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when updating wallet",
+			Message: models.UPDATE_WALLET_ERR,
 		})
 	}
 
-	wallet, err = models.GetWalletById(walletId, config.DbCtx)
+	s := services.GetWalletService()
+	wallet, err := s.FindById(walletId)
 	if err != nil {
 		log.Errorf("%s in UpdateWalletHandler function", err)
 	}
@@ -115,21 +120,45 @@ func UpdateWalletHandler(ctx *fiber.Ctx) error {
 
 		return ctx.Status(404).JSON(&models.APIResponse{
 			Code:    404,
-			Message: "Wallet does not exist!",
+			Message: models.WALLET_NOT_FOUND,
 			Data:    nil,
 		})
 	}
 
-	if wallet, err = models.UpdateWallet(walletId, payload, config.DbCtx); err != nil {
+	wallet.Name = fmt.Sprintf("%s %s Wallet", payload.AccountScheme, strings.ToUpper(payload.Type))
+	wallet.Type = payload.Type
+	wallet.AccountNumber = repositories.TrimAccountNumber(payload.Type, payload.AccountNumber)
+	wallet.AccountScheme = payload.AccountScheme
+
+	if wallet, err = s.UpdateWallet(wallet); err != nil {
+		log.Errorf("UpdateWallet Error: %s", err.Error())
 		return ctx.Status(500).JSON(&models.APIResponse{
 			Code:    500,
-			Message: "Something went wrong when updating wallet",
+			Message: models.UPDATE_WALLET_ERR,
 		})
 	}
 
 	return ctx.Status(200).JSON(&models.APIResponse{
 		Code:    200,
-		Message: "Wallet updated successfully",
+		Message: models.UPDATE_WALLET_SUCCESS,
 		Data:    wallet,
+	})
+}
+
+// Function for delete wallet route
+func DeleteWalletHandler(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	s := services.GetWalletService()
+
+	if err := s.DeleteWallet(id); err != nil {
+		return ctx.Status(500).JSON(&models.APIResponse{
+			Code:    500,
+			Message: models.DELETE_WALLET_ERR,
+		})
+	}
+
+	return ctx.Status(200).JSON(&models.APIResponse{
+		Code:    200,
+		Message: models.DELETE_WALLET_SUCCESS,
 	})
 }
