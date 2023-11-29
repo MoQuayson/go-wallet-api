@@ -23,8 +23,10 @@ func main() {
 	usersRoutes := api.Group("/users")
 	walletsRoutes := api.Group("/wallets")
 
-	models.InitValidation()
+	models.InitValidation() //enable validation
 	config.ConnectDatabase()
+	config.RegisterRepositories(config.DbCtx)
+	config.RegisterServices()
 
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Status(200).SendString("E-Wallet API")
@@ -35,12 +37,14 @@ func main() {
 	usersRoutes.Get("/:id", handlers.GetUserByIdHandler)
 	usersRoutes.Post("/", middlewares.ValidateUserRequest, handlers.CreateUserHandler)
 	usersRoutes.Put("/:id", middlewares.ValidateUserRequest, handlers.UpdateUserHandler)
+	usersRoutes.Delete("/:id", handlers.DeleteUserHandler)
 
 	//Wallets routes
 	walletsRoutes.Get("/", handlers.GetAllWalletsHandler)
 	walletsRoutes.Get("/:id", handlers.GetWalletByIdHandler)
 	walletsRoutes.Post("/", middlewares.ValidateWalletRequest, handlers.CreateWalletHandler)
 	walletsRoutes.Put("/:id", middlewares.ValidateWalletRequest, handlers.UpdateWalletHandler)
+	walletsRoutes.Delete("/:id", handlers.DeleteWalletHandler)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }
