@@ -8,9 +8,12 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 )
 
+/*
+This is where you set the rate limirer for the API
+*/
 func AddRateLimiter() limiter.Config {
 	return limiter.Config{
-		Max:        5,
+		Max:        30,
 		Expiration: 1 * time.Minute,
 		KeyGenerator: func(c *fiber.Ctx) string {
 			return c.IP()
