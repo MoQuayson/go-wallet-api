@@ -16,10 +16,13 @@ var nullString *NullString
 // 	return nullString
 // }
 
-func ConvertToNullString(v string) NullString {
+func ConvertToNullString(v interface{}) NullString {
+	if v == nil {
+		v = ""
+	}
 	return NullString{
 		sql.NullString{
-			String: v,
+			String: v.(string),
 			Valid:  true,
 		},
 	}

@@ -59,6 +59,30 @@ func (repo *UserRepository) FindById(id string, channel chan models.DBResponse) 
 	}
 }
 
+// Find user by email
+func (repo *UserRepository) FindByEmail(email string, channel chan models.DBResponse) {
+	defer repo.WaitGroup.Done()
+	user := models.User{}
+	err := repo.DB.Where("email = ?", email).First(&user).Error
+
+	channel <- models.DBResponse{
+		Data:  user,
+		Error: err,
+	}
+}
+
+// Find user by phone
+func (repo *UserRepository) FindByPhoneNum(phoneNume string, channel chan models.DBResponse) {
+	defer repo.WaitGroup.Done()
+	user := models.User{}
+	err := repo.DB.Where("phone_num = ?", phoneNume).First(&user).Error
+
+	channel <- models.DBResponse{
+		Data:  user,
+		Error: err,
+	}
+}
+
 // Inserts new user into db
 func (repo *UserRepository) Create(req requests.UserRequest, channel chan models.DBResponse) {
 	defer repo.WaitGroup.Done()

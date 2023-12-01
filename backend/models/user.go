@@ -20,8 +20,9 @@ type User struct {
 	PhoneNum  NullString   `gorm:"column:phone_num;size:255;unique" json:"phone_num" form:"phone_num"`
 	Role      string       `gorm:"column:role;size:255" json:"role" form:"role"`
 	Password  string       `gorm:"column:password;size:255" json:"-" form:"-"`
-	CreatedAt time.Time    `gorm:"column:created_at;type:timestamp" json:"created_at" form:"created_at"`
-	UpdatedAt NullDateTime `gorm:"column:updated_at;type:timestamp" json:"updated_at" form:"updated_at"`
+	Token     string       `gorm:"-" json:"token,omitempty" form:"token,omitempty"`
+	CreatedAt time.Time    `gorm:"column:created_at;type:timestamp" json:"created_at,omitempty" form:"created_at"`
+	UpdatedAt NullDateTime `gorm:"column:updated_at;type:timestamp" json:"updated_at,omitempty" form:"updated_at"`
 }
 
 func (User) TableName() string {

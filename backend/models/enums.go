@@ -39,3 +39,17 @@ const (
 	DELETE_WALLET_ERR string = "Something went wrong when deleting wallet"
 	WALLET_NOT_FOUND  string = "Wallet does not exist!"
 )
+
+const (
+	AUTHENTICATE_USER_ERR string = "Something went wrong when authenticating user"
+	INVALID_CREDENTIALS   string = "Invalid credentials. Try again."
+	VALID_CREDENTIALS     string = "User authenticated successfully"
+	UNAUTHORIZED_USER     string = "Unauthorized User"
+	UNAUTHENTICATED_USER  string = "User not authenticated"
+)
+
+// Roles
+const (
+	USER_ROLE  string = "User"
+	ADMIN_ROLE string = "Administrator"
+)

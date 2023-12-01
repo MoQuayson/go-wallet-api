@@ -20,8 +20,9 @@ func main() {
 	app.Use(cors.New(config.AddCORS()))           //set CORS
 
 	api := app.Group("/api")
-	usersRoutes := api.Group("/users")
-	walletsRoutes := api.Group("/wallets")
+	authRoutes := api.Group("/auth")
+	usersRoutes := api.Group("/users").Use(config.AddAuthentication())     // set authentication
+	walletsRoutes := api.Group("/wallets").Use(config.AddAuthentication()) // set authentication
 
 	models.InitValidation() //enable validation
 	config.ConnectDatabase()
@@ -32,19 +33,21 @@ func main() {
 		return ctx.Status(200).SendString("E-Wallet API")
 	})
 
+	authRoutes.Post("/login", middlewares.ValidateLoginRequest, handlers.AuthenticateUserHandler)
+
 	//Users routes
-	usersRoutes.Get("/", handlers.GetAllUsersHandler)
-	usersRoutes.Get("/:id", handlers.GetUserByIdHandler)
-	usersRoutes.Post("/", middlewares.ValidateUserRequest, handlers.CreateUserHandler)
-	usersRoutes.Put("/:id", middlewares.ValidateUserRequest, handlers.UpdateUserHandler)
-	usersRoutes.Delete("/:id", handlers.DeleteUserHandler)
+	usersRoutes.Get("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE}), handlers.GetAllUsersHandler)
+	usersRoutes.Get("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetUserByIdHandler)
+	usersRoutes.Post("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateUserRequest, handlers.CreateUserHandler)
+	usersRoutes.Put("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateUserRequest, handlers.UpdateUserHandler)
+	usersRoutes.Delete("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.DeleteUserHandler)
 
 	//Wallets routes
-	walletsRoutes.Get("/", handlers.GetAllWalletsHandler)
-	walletsRoutes.Get("/:id", handlers.GetWalletByIdHandler)
-	walletsRoutes.Post("/", middlewares.ValidateWalletRequest, handlers.CreateWalletHandler)
-	walletsRoutes.Put("/:id", middlewares.ValidateWalletRequest, handlers.UpdateWalletHandler)
-	walletsRoutes.Delete("/:id", handlers.DeleteWalletHandler)
+	walletsRoutes.Get("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetAllWalletsHandler)
+	walletsRoutes.Get("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetWalletByIdHandler)
+	walletsRoutes.Post("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.CreateWalletHandler)
+	walletsRoutes.Put("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.UpdateWalletHandler)
+	walletsRoutes.Delete("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.DeleteWalletHandler)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }
