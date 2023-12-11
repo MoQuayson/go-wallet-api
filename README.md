@@ -8,7 +8,7 @@ This project is an e-wallet API built with GoFiber, a fast and lightweight web f
 ### 1. Clone the Repository:
 ```bash
 git clone https://github.com/MoQuayson/go-wallet-api.git
-cd go-wqallet-api
+cd go-wallet-api
 cd backend
 ```
 ### 2. Install Dependencies:
