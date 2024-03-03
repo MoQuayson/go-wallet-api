@@ -11,6 +11,5 @@ This is where you register your repositories
 This is more like a DI style
 */
 func RegisterRepositories(db *gorm.DB) {
-	repositories.NewUserRepository(db)
 	repositories.NewWalletRepository(db)
 }

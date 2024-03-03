@@ -44,3 +44,38 @@ func TestUserService_FindUserById(t *testing.T) {
 	}
 
 }
+
+// Test to check if user exist by email
+func TestUserService_UserAlreadyExistsByEmail(t *testing.T) {
+	repo := mocks.MockUserRepository{}
+	svc := mocks.NewMockUserService(repo)
+
+	testCases := []string{
+		"0012345678",
+		"99388577322",
+		"2335548775889",
+		"9999999999",
+	}
+
+	for _, tc := range testCases {
+		if svc.UserExistsByPhone(tc) {
+			t.Logf("User with phone no. %s already exists", tc)
+		}
+	}
+}
+func TestUserService_UserAlreadyExistsByPhone(t *testing.T) {
+	repo := mocks.MockUserRepository{}
+	svc := mocks.NewMockUserService(repo)
+
+	testCases := []string{
+		"john.doe@example.com",
+		"jane.doe@gmail.com",
+		"tony.stark@example.com",
+	}
+
+	for _, tc := range testCases {
+		if svc.UserExistsByPhone(tc) {
+			t.Logf("User with email %s already exists", tc)
+		}
+	}
+}
