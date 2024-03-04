@@ -1,6 +1,10 @@
 package utils
 
-import "github.com/gofrs/uuid"
+import (
+	"fmt"
+	"github.com/gofrs/uuid"
+	"strings"
+)
 
 func NewUUID() uuid.UUID {
 	id, _ := uuid.NewV4()
@@ -17,4 +21,8 @@ func MakeDataSliceAndErrorChannels[T any]() (chan []*T, chan error) {
 
 func GetDataFromChannel[T any](dataChan chan *T) *T {
 	return <-dataChan
+}
+
+func GenerateWalletName(accountScheme, accountType string) string {
+	return fmt.Sprintf("%s %s wallet", accountScheme, strings.ToUpper(accountType))
 }
