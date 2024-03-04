@@ -9,6 +9,7 @@ import (
 	userModel "go-wallet-api/features/users/business_logic/app/models"
 	usersPkg "go-wallet-api/features/users/pkg"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"os"
 	"time"
 )
@@ -31,11 +32,12 @@ func (s *AuthService) AuthenticateUser(req *models.LoginRequest) (*userModel.Use
 
 	authUser := <-userChan
 
-	if !checkPasswordHash(authUser.Password, req.Password) {
+	startTime := time.Now()
+	if !s.checkPasswordHash(authUser.Password, req.Password) {
 		return nil, nil
 	}
 
-	//genereate token and claims policy
+	//generate token and claims policy
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -46,20 +48,26 @@ func (s *AuthService) AuthenticateUser(req *models.LoginRequest) (*userModel.Use
 	claims["phone_num"] = authUser.PhoneNum
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	t, err := token.SignedString([]byte(GetJWTSecret()))
+	t, err := token.SignedString([]byte(s.getJWTSecret()))
 	if err != nil {
 		return nil, err
 	}
 	authUser.Token = t
+	endTime := time.Now()
+	difference := endTime.Sub(startTime)
+	log.Printf("Seconds: %d ms\n", difference.Milliseconds())
 
 	return userModel.NewUserModelWithUserEntity(authUser), err
 }
 
-func checkPasswordHash(hashPassword, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
+func (s *AuthService) checkPasswordHash(hashPassword, password string) bool {
+	var err error
+	go func(error, string, string) {
+		err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
+	}(err, hashPassword, password)
 	return err == nil
 }
 
-func GetJWTSecret() string {
+func (s *AuthService) getJWTSecret() string {
 	return os.Getenv("JWT_SECRET")
 }
