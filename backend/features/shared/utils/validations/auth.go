@@ -1,8 +1,10 @@
-package middlewares
+package validations
 
 import (
+	auth "go-wallet-api/features/auth/business_logic/app/models"
+	shared "go-wallet-api/features/shared/models"
+	"go-wallet-api/middlewares"
 	"go-wallet-api/models"
-	"go-wallet-api/requests"
 	"go-wallet-api/services"
 
 	jwtware "github.com/gofiber/contrib/jwt"
@@ -12,7 +14,7 @@ import (
 
 // Validates user request
 func ValidateLoginRequest(c *fiber.Ctx) error {
-	var payload requests.LoginRequest
+	var payload auth.LoginRequest
 
 	if c.Query("email") != "" {
 		log.Info("Endpoint has queries")
@@ -25,10 +27,10 @@ func ValidateLoginRequest(c *fiber.Ctx) error {
 
 	err := models.Validator.Struct(payload)
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(models.APIResponse{
+		return c.Status(fiber.StatusUnprocessableEntity).JSON(shared.APIResponse{
 			Code:    422,
 			Message: "Validation Errors",
-			Errors:  models.GetValidationErrors(err, requests.LoginRequest{}),
+			Errors:  models.GetValidationErrors(err, auth.LoginRequest{}),
 		})
 	}
 
@@ -50,10 +52,10 @@ func JwtError(c *fiber.Ctx, err error) error {
 	})
 }
 
-// Checks if user has the correct authorization
+// RequiresAuthorization Checks if user has the correct authorization
 func RequiresAuthorization(roles []string) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		user := GetUserClaims(ctx)
+		user := middlewares.GetUserClaims(ctx)
 
 		for _, r := range roles {
 			if r == user.Role {

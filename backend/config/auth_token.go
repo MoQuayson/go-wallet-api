@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go-wallet-api/middlewares"
+	"go-wallet-api/features/shared/utils/validations"
 	"go-wallet-api/services"
 
 	jwtware "github.com/gofiber/contrib/jwt"
@@ -12,6 +12,6 @@ import (
 func AddAuthentication() fiber.Handler {
 	return jwtware.New(jwtware.Config{
 		SigningKey:   jwtware.SigningKey{Key: []byte(services.GetJWTSecret())},
-		ErrorHandler: middlewares.JwtError,
+		ErrorHandler: validations.JwtError,
 	})
 }

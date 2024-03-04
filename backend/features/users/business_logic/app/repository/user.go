@@ -47,6 +47,18 @@ func (repo *UserRepository) FindUserById(id string, dataChan chan *entities.User
 	dataChan <- user
 	errChan <- nil
 }
+func (repo *UserRepository) FindUserByEmail(email string, dataChan chan *entities.UserEntity, errChan chan error) {
+	user := &entities.UserEntity{}
+
+	if err := repo.db.Where("email = ?", email).Find(&user).Error; err != nil {
+		dataChan <- nil
+		errChan <- err
+		return
+	}
+
+	dataChan <- user
+	errChan <- nil
+}
 func (repo *UserRepository) CreateNewUser(user *entities.UserEntity, errChan chan error) {
 
 	if err := repo.db.Create(user).Error; err != nil {

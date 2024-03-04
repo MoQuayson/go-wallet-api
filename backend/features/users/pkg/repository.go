@@ -7,6 +7,7 @@ import (
 type IUserRepository interface {
 	FindAllUsers(chan []*entities.UserEntity, chan error)
 	FindUserById(string, chan *entities.UserEntity, chan error)
+	FindUserByEmail(string, chan *entities.UserEntity, chan error)
 	CreateNewUser(*entities.UserEntity, chan error)
 	UpdateUser(*entities.UserEntity, chan error)
 	DeleteUser(string, chan error)

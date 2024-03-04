@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go-wallet-api/config"
+	"go-wallet-api/features/shared/utils/validations"
 	"go-wallet-api/handlers"
 	"go-wallet-api/internal"
 	"go-wallet-api/middlewares"
@@ -24,7 +25,6 @@ func main() {
 	app.Use(logger.New())
 
 	api := app.Group("/api")
-	authRoutes := api.Group("/auth")
 	walletsRoutes := api.Group("/wallets").Use(config.AddAuthentication()) // set authentication
 
 	models.InitValidation() //enable validation
@@ -36,16 +36,16 @@ func main() {
 		return ctx.Status(200).SendString("E-Wallet API")
 	})
 
-	authRoutes.Post("/login", middlewares.ValidateLoginRequest, handlers.AuthenticateUserHandler)
-
+	//register routes
 	routes.NewUserRoutes(api)
+	routes.RegisterAuthRoutes(api)
 
 	//Wallets routes
-	walletsRoutes.Get("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetAllWalletsHandler)
-	walletsRoutes.Get("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetWalletByIdHandler)
-	walletsRoutes.Post("/", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.CreateWalletHandler)
-	walletsRoutes.Put("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.UpdateWalletHandler)
-	walletsRoutes.Delete("/:id", middlewares.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.DeleteWalletHandler)
+	walletsRoutes.Get("/", validations.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetAllWalletsHandler)
+	walletsRoutes.Get("/:id", validations.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.GetWalletByIdHandler)
+	walletsRoutes.Post("/", validations.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.CreateWalletHandler)
+	walletsRoutes.Put("/:id", validations.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), middlewares.ValidateWalletRequest, handlers.UpdateWalletHandler)
+	walletsRoutes.Delete("/:id", validations.RequiresAuthorization([]string{models.ADMIN_ROLE, models.USER_ROLE}), handlers.DeleteWalletHandler)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }
