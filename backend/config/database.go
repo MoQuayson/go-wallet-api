@@ -45,12 +45,12 @@ func ConnectDatabase() {
 	}
 
 	//migrate tables
-	//err = database.MigrateEntities(DbCtx)
-	//
-	//if err != nil {
-	//	log.Fatalln(err)
-	//	return
-	//}
+	err = database.MigrateEntities(DbCtx)
+
+	if err != nil {
+		log.Fatalln(err)
+		return
+	}
 
 	//seed admin
 	seedAdmin := envy.Get("SEED_ADMIN", "true")

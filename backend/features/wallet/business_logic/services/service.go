@@ -48,7 +48,7 @@ func (s *WalletService) FindWalletById(id string) (*models.Wallet, error) {
 	return models.NewWalletModelWithWalletEntity(wallet), nil
 }
 func (s *WalletService) CreateNewWallet(req *models.WalletRequest) (*models.Wallet, error) {
-	errChan := make(chan error)
+	errChan := make(chan error, 1)
 	wallet := models.NewWalletEntity(req)
 	s.repo.CreateNewWallet(wallet, errChan)
 	err := <-errChan
@@ -69,7 +69,7 @@ func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*mod
 		return nil, err
 	}
 
-	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.AccountScheme))
+	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.Type))
 	updatedAt := time.Now()
 	walletEntity.Name = utils.GenerateWalletName(req.AccountScheme, req.Type)
 	walletEntity.Type = req.Type
@@ -78,7 +78,7 @@ func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*mod
 	walletEntity.Owner = uuid.FromStringOrNil(req.Owner)
 	walletEntity.UpdatedAt = &updatedAt
 
-	errChan = make(chan error)
+	errChan = make(chan error, 1)
 	s.repo.UpdateWallet(walletEntity, errChan)
 	if err = <-errChan; err != nil {
 		return nil, err

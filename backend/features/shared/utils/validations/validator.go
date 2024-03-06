@@ -10,13 +10,13 @@ var Validator *validator.Validate
 
 func InitValidation() {
 	Validator = validator.New()
-	Validator.RegisterValidation("is-unique", ValidateIsUnique)
+	//Validator.RegisterValidation("is-unique", ValidateIsUnique)
 }
 
-func ValidateIsUnique(fl validator.FieldLevel) bool {
-
-	return false
-}
+//func ValidateIsUnique(fl validator.FieldLevel) bool {
+//
+//	return false
+//}
 
 func getValidationErrorMessage(field string, fieldError validator.FieldError) string {
 	switch fieldError.Tag() {
@@ -32,9 +32,9 @@ func getValidationErrorMessage(field string, fieldError validator.FieldError) st
 	return fieldError.Error()
 }
 
-func GetValidationErrors(err error, model interface{}) map[string][]string {
+func GetValidationErrors(err error, model interface{}) map[string]string {
 	//field := map[string][]string{}
-	fieldMap := make(map[string][]string, 0)
+	fieldMap := make(map[string]string, 0)
 	val := reflect.ValueOf(model)
 
 	for i := 0; i < val.Type().NumField(); i++ {
@@ -42,7 +42,7 @@ func GetValidationErrors(err error, model interface{}) map[string][]string {
 
 			if val.Type().Field(i).Name == err.Field() {
 				field := val.Type().Field(i).Tag.Get("json")
-				fieldMap[field] = append(fieldMap[field], getValidationErrorMessage(field, err))
+				fieldMap[field] = getValidationErrorMessage(field, err)
 			}
 
 		}

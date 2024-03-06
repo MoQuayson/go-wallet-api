@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	GtWalletCountByOwnerIdQuery = "select count(*) as count where owner = ?"
+	GtWalletCountByOwnerIdQuery = "select count(*) as count from wallets where owner = ?"
 	DeleteWalletByIdQuery       = "delete from wallets where id = ?"
 )
 
@@ -64,8 +64,8 @@ func (repo *WalletRepository) UpdateWallet(wallet *entities.WalletEntity, errCha
 	errChan <- nil
 }
 func (repo *WalletRepository) GetWalletsCount(owner string, dataChan chan *int64, errChan chan error) {
-	var count *int64
-	err := repo.db.Model(&models.Wallet{}).Where(GtWalletCountByOwnerIdQuery, owner).Count(count).Error
+	var count int64
+	err := repo.db.Model(&entities.WalletEntity{}).Raw(GtWalletCountByOwnerIdQuery, owner).Count(&count).Error
 
 	if err != nil {
 		dataChan <- nil
@@ -73,7 +73,7 @@ func (repo *WalletRepository) GetWalletsCount(owner string, dataChan chan *int64
 		return
 	}
 
-	dataChan <- count
+	dataChan <- &count
 	errChan <- nil
 }
 

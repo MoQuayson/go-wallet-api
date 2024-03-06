@@ -39,7 +39,7 @@ func NewWalletModelWithWalletEntity(wallet *entities.WalletEntity) *Wallet {
 
 func NewWalletEntity(req *WalletRequest) *entities.WalletEntity {
 	owner, _ := uuid.FromString(req.Owner)
-	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.AccountScheme))
+	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.Type))
 	return &entities.WalletEntity{
 		ID:            utils.NewUUID(),
 		Name:          utils.GenerateWalletName(req.AccountScheme, req.Type),
