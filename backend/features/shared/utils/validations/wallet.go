@@ -1,13 +1,15 @@
 package validations
 
 import (
-	"github.com/gofiber/fiber/v2"
 	shared "go-wallet-api/features/shared/models"
-	userModel "go-wallet-api/features/users/business_logic/app/models"
+	"go-wallet-api/features/wallet/business_logic/app/models"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-func ValidateUserRequest(c *fiber.Ctx) error {
-	body := new(userModel.UserRequest)
+// Validates wallet request
+func ValidateWalletRequest(c *fiber.Ctx) error {
+	body := new(models.WalletRequest)
 	c.BodyParser(&body)
 
 	err := Validator.Struct(body)
@@ -15,7 +17,7 @@ func ValidateUserRequest(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(shared.APIResponse{
 			Code:    422,
 			Message: "Validation Errors",
-			Errors:  GetValidationErrors(err, userModel.UserRequest{}),
+			Errors:  GetValidationErrors(err, models.WalletRequest{}),
 		})
 	}
 	return c.Next()

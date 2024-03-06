@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/gofrs/uuid"
+	"os"
 	"strings"
 )
 
@@ -25,4 +26,8 @@ func GetDataFromChannel[T any](dataChan chan *T) *T {
 
 func GenerateWalletName(accountScheme, accountType string) string {
 	return fmt.Sprintf("%s %s wallet", accountScheme, strings.ToUpper(accountType))
+}
+
+func GetJWTSecret() string {
+	return os.Getenv("JWT_SECRET")
 }

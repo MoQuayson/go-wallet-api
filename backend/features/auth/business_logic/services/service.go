@@ -10,7 +10,6 @@ import (
 	usersPkg "go-wallet-api/features/users/pkg"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"os"
 	"time"
 )
 
@@ -48,7 +47,7 @@ func (s *AuthService) AuthenticateUser(req *models.LoginRequest) (*userModel.Use
 	claims["phone_num"] = authUser.PhoneNum
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	t, err := token.SignedString([]byte(s.getJWTSecret()))
+	t, err := token.SignedString([]byte(utils.GetJWTSecret()))
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +65,4 @@ func (s *AuthService) checkPasswordHash(hashPassword, password string) bool {
 		err = bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 	}(err, hashPassword, password)
 	return err == nil
-}
-
-func (s *AuthService) getJWTSecret() string {
-	return os.Getenv("JWT_SECRET")
 }

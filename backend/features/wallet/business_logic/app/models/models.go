@@ -21,6 +21,10 @@ type Wallet struct {
 }
 
 func NewWalletModelWithWalletEntity(wallet *entities.WalletEntity) *Wallet {
+	if wallet.ID.IsNil() {
+		return nil
+	}
+
 	return &Wallet{
 		ID:            wallet.ID,
 		Name:          wallet.Name,
@@ -35,11 +39,12 @@ func NewWalletModelWithWalletEntity(wallet *entities.WalletEntity) *Wallet {
 
 func NewWalletEntity(req *WalletRequest) *entities.WalletEntity {
 	owner, _ := uuid.FromString(req.Owner)
+	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.AccountScheme))
 	return &entities.WalletEntity{
 		ID:            utils.NewUUID(),
-		Name:          req.Name,
+		Name:          utils.GenerateWalletName(req.AccountScheme, req.Type),
 		Type:          req.Type,
-		AccountNumber: req.AccountNumber,
+		AccountNumber: accountNumber,
 		AccountScheme: req.AccountScheme,
 		Owner:         owner,
 		CreatedAt:     time.Now(),

@@ -10,6 +10,7 @@ import (
 
 const (
 	GtWalletCountByOwnerIdQuery = "select count(*) as count where owner = ?"
+	DeleteWalletByIdQuery       = "delete from wallets where id = ?"
 )
 
 type WalletRepository struct {
@@ -23,7 +24,7 @@ func NewWalletRepository(db *gorm.DB) pkg.IWalletRepository {
 
 func (repo *WalletRepository) FindAllWallets(dataChan chan []*entities.WalletEntity, errChan chan error) {
 	wallets := make([]*entities.WalletEntity, 0)
-	if err := repo.db.Find(wallets).Error; err != nil {
+	if err := repo.db.Find(&wallets).Error; err != nil {
 		log.Println(err)
 		errChan <- err
 		dataChan <- nil
@@ -35,13 +36,12 @@ func (repo *WalletRepository) FindAllWallets(dataChan chan []*entities.WalletEnt
 }
 func (repo *WalletRepository) FindWalletById(id string, dataChan chan *entities.WalletEntity, errChan chan error) {
 	wallet := &entities.WalletEntity{}
-	if err := repo.db.Where("id = ?", id).Find(wallet).Error; err != nil {
+	if err := repo.db.Where("id = ?", id).Find(&wallet).Error; err != nil {
 		log.Println(err)
 		errChan <- err
 		dataChan <- nil
 		return
 	}
-
 	dataChan <- wallet
 	errChan <- nil
 }
@@ -69,10 +69,41 @@ func (repo *WalletRepository) GetWalletsCount(owner string, dataChan chan *int64
 
 	if err != nil {
 		dataChan <- nil
-		errChan <- nil
+		errChan <- err
 		return
 	}
 
 	dataChan <- count
+	errChan <- nil
+}
+
+func (repo *WalletRepository) WalletExist(entity *entities.WalletEntity, dataChan chan bool, errChan chan error) {
+	var wallet *models.Wallet
+
+	err := repo.db.Where("account_number = ? and account_scheme = ?", entity.AccountNumber, entity.AccountScheme).Find(wallet).Error
+
+	if err != nil {
+		dataChan <- false
+		errChan <- err
+		return
+	}
+
+	errChan <- nil
+
+	if wallet != nil {
+		dataChan <- true
+	} else {
+		dataChan <- false
+
+	}
+
+}
+
+func (repo *WalletRepository) DeleteWallet(id string, errChan chan error) {
+	if err := repo.db.Exec(DeleteWalletByIdQuery, id).Error; err != nil {
+		errChan <- err
+		return
+	}
+
 	errChan <- nil
 }

@@ -20,4 +20,13 @@ const (
 	ResponseMsg_ValidCredentials    string = "User authenticated successfully"
 	ResponseMsg_UnAuthorizedUser    string = "Unauthorized User"
 	ResponseMsg_UnAuthenticatedUser string = "User not authenticated"
+	ResponseMsg_CreateWalletSuccess string = "Wallet created successfully"
+	ResponseMsg_UpdateWalletSuccess string = "Wallet updated successfully"
+	ResponseMsg_GetWalletSuccess    string = "Wallet(s) retrieved successfully"
+	ResponseMsg_DeleteWalletSuccess string = "Wallet deleted successfully"
+	ResponseMsg_CreateWalletErr     string = "Something went wrong when creating wallet"
+	ResponseMsg_UpdateWalletErr     string = "Something went wrong when updating wallet"
+	ResponseMsg_GetWalletErr        string = "Something went wrong when retrieving wallet data"
+	ResponseMsg_DeleteWalletErr     string = "Something went wrong when deleting wallet"
+	ResponseMsg_WalletNotFound      string = "Wallet does not exist!"
 )

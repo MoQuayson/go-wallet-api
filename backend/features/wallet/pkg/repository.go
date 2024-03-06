@@ -10,4 +10,6 @@ type IWalletRepository interface {
 	CreateNewWallet(*entities.WalletEntity, chan error)
 	UpdateWallet(*entities.WalletEntity, chan error)
 	GetWalletsCount(string, chan *int64, chan error)
+	WalletExist(*entities.WalletEntity, chan bool, chan error)
+	DeleteWallet(string, chan error)
 }

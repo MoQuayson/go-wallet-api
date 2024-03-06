@@ -8,6 +8,7 @@ type IWalletService interface {
 	FindAllWallets() ([]*models.Wallet, error)
 	FindWalletById(string) (*models.Wallet, error)
 	CreateNewWallet(*models.WalletRequest) (*models.Wallet, error)
-	UpdateWallet(string, models.WalletRequest) (*models.Wallet, error)
+	UpdateWallet(string, *models.WalletRequest) (*models.Wallet, error)
 	GetWalletsCount(string) (*int64, error)
+	DeleteWallet(string) error
 }

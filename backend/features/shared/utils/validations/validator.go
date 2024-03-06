@@ -1,10 +1,9 @@
-package models
+package validations
 
 import (
 	"fmt"
-	"reflect"
-
 	"github.com/go-playground/validator/v10"
+	"reflect"
 )
 
 var Validator *validator.Validate

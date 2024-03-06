@@ -59,7 +59,7 @@ func (s *WalletService) CreateNewWallet(req *models.WalletRequest) (*models.Wall
 
 	return models.NewWalletModelWithWalletEntity(wallet), nil
 }
-func (s *WalletService) UpdateWallet(id string, req models.WalletRequest) (*models.Wallet, error) {
+func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*models.Wallet, error) {
 	//get wallet by id
 	walletChan, errChan := utils.MakeDataAndErrorChannels[entities.WalletEntity]()
 	s.repo.FindWalletById(id, walletChan, errChan)
@@ -69,10 +69,11 @@ func (s *WalletService) UpdateWallet(id string, req models.WalletRequest) (*mode
 		return nil, err
 	}
 
+	accountNumber := utils.TrimAccountNumberWithWalletType(req.AccountNumber, utils.MapStringToWalletType(req.AccountScheme))
 	updatedAt := time.Now()
-	walletEntity.Name = req.Name
+	walletEntity.Name = utils.GenerateWalletName(req.AccountScheme, req.Type)
 	walletEntity.Type = req.Type
-	walletEntity.AccountNumber = req.AccountNumber
+	walletEntity.AccountNumber = accountNumber
 	walletEntity.AccountScheme = req.AccountScheme
 	walletEntity.Owner = uuid.FromStringOrNil(req.Owner)
 	walletEntity.UpdatedAt = &updatedAt
@@ -85,6 +86,22 @@ func (s *WalletService) UpdateWallet(id string, req models.WalletRequest) (*mode
 
 	return models.NewWalletModelWithWalletEntity(walletEntity), nil
 }
-func (s *WalletService) GetWalletsCount(string) (*int64, error) {
-	return nil, nil
+func (s *WalletService) GetWalletsCount(id string) (*int64, error) {
+	walletCountChan, errChan := utils.MakeDataAndErrorChannels[int64]()
+	s.repo.GetWalletsCount(id, walletCountChan, errChan)
+	walletCount := <-walletCountChan
+	err := <-errChan
+
+	if err != nil {
+		return nil, err
+	}
+
+	return walletCount, nil
+}
+
+func (s *WalletService) DeleteWallet(id string) error {
+	errChan := make(chan error, 1)
+	s.repo.DeleteWallet(id, errChan)
+
+	return <-errChan
 }
