@@ -1,7 +1,7 @@
 package config
 
 import (
-	"go-wallet-api/models"
+	shared "go-wallet-api/features/shared/models"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,7 +19,7 @@ func AddRateLimiter() limiter.Config {
 			return c.IP()
 		},
 		LimitReached: func(c *fiber.Ctx) error {
-			return c.Status(fiber.StatusTooManyRequests).JSON(&models.APIResponse{
+			return c.Status(fiber.StatusTooManyRequests).JSON(&shared.APIResponse{
 				Code:    fiber.StatusTooManyRequests,
 				Message: "Too Many Requests",
 			})
