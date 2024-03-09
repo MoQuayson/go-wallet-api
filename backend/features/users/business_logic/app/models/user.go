@@ -3,6 +3,7 @@ package models
 import (
 	"github.com/gofrs/uuid"
 	"go-wallet-api/features/shared/utils"
+	"go-wallet-api/features/shared/utils/enums"
 	"go-wallet-api/features/users/business_logic/app/entities"
 	"time"
 )
@@ -41,6 +42,9 @@ func NewUserModelWithUserEntity(user *entities.UserEntity) *User {
 }
 
 func NewUserEntity(req *UserRequest) *entities.UserEntity {
+	if len(req.Role) == 0 {
+		req.Role = enums.RoleType_User
+	}
 	return &entities.UserEntity{
 		ID:       utils.NewUUID(),
 		Name:     req.Name,

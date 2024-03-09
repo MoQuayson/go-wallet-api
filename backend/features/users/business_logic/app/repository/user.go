@@ -69,7 +69,7 @@ func (repo *UserRepository) CreateNewUser(user *entities.UserEntity, errChan cha
 	errChan <- nil
 }
 func (repo *UserRepository) UpdateUser(user *entities.UserEntity, errChan chan error) {
-	if err := repo.db.Save(user).Error; err != nil {
+	if err := repo.db.Save(&user).Error; err != nil {
 		errChan <- err
 		return
 	}

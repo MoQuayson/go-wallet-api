@@ -18,7 +18,7 @@ func NewUserService(repo pkg.IUserRepository) pkg.IUserService {
 
 func (s *UserService) FindAllUsers() ([]*models.User, error) {
 	usersChan, errChan := utils.MakeDataSliceAndErrorChannels[entities.UserEntity]()
-	s.repo.FindAllUsers(usersChan, errChan)
+	go s.repo.FindAllUsers(usersChan, errChan)
 	userEntities := <-usersChan
 	err := <-errChan
 
@@ -35,7 +35,7 @@ func (s *UserService) FindAllUsers() ([]*models.User, error) {
 }
 func (s *UserService) FindUserById(id string) (*models.User, error) {
 	userChan, errChan := utils.MakeDataAndErrorChannels[entities.UserEntity]()
-	s.repo.FindUserById(id, userChan, errChan)
+	go s.repo.FindUserById(id, userChan, errChan)
 	userEntity := <-userChan
 	err := <-errChan
 
@@ -45,9 +45,9 @@ func (s *UserService) FindUserById(id string) (*models.User, error) {
 	return models.NewUserModelWithUserEntity(userEntity), nil
 }
 func (s *UserService) CreateNewUser(req *models.UserRequest) (*models.User, error) {
-	errChan := make(chan error)
+	errChan := make(chan error, 1)
 	user := models.NewUserEntity(req)
-	s.repo.CreateNewUser(user, errChan)
+	go s.repo.CreateNewUser(user, errChan)
 	err := <-errChan
 
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *UserService) CreateNewUser(req *models.UserRequest) (*models.User, erro
 func (s *UserService) UpdateUser(id string, req *models.UserRequest) (*models.User, error) {
 	//get user by id
 	userChan, errChan := utils.MakeDataAndErrorChannels[entities.UserEntity]()
-	s.repo.FindUserById(id, userChan, errChan)
+	go s.repo.FindUserById(id, userChan, errChan)
 	userEntity := <-userChan
 	err := <-errChan
 	if err != nil {
@@ -69,8 +69,8 @@ func (s *UserService) UpdateUser(id string, req *models.UserRequest) (*models.Us
 	userEntity.PhoneNum = &req.PhoneNum
 	userEntity.Email = req.Email
 
-	errChan = make(chan error)
-	s.repo.UpdateUser(userEntity, errChan)
+	errChan = make(chan error, 1)
+	go s.repo.UpdateUser(userEntity, errChan)
 	if err = <-errChan; err != nil {
 		return nil, err
 	}
@@ -79,8 +79,8 @@ func (s *UserService) UpdateUser(id string, req *models.UserRequest) (*models.Us
 
 }
 func (s *UserService) DeleteUser(id string) error {
-	errChan := make(chan error)
-	s.repo.DeleteUser(id, errChan)
+	errChan := make(chan error, 1)
+	go s.repo.DeleteUser(id, errChan)
 	if err := <-errChan; err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (s *UserService) DeleteUser(id string) error {
 }
 func (s *UserService) CheckIfUserExistByPhone(phoneNum string) (*models.User, error) {
 	userChan, errChan := utils.MakeDataAndErrorChannels[entities.UserEntity]()
-	s.repo.CheckIfUserExistByPhone(phoneNum, userChan, errChan)
+	go s.repo.CheckIfUserExistByPhone(phoneNum, userChan, errChan)
 	userEntity := <-userChan
 	err := <-errChan
 

@@ -20,7 +20,7 @@ func NewWalletService(repo pkg.IWalletRepository) pkg.IWalletService {
 
 func (s *WalletService) FindAllWallets() ([]*models.Wallet, error) {
 	walletsChan, errChan := utils.MakeDataSliceAndErrorChannels[entities.WalletEntity]()
-	s.repo.FindAllWallets(walletsChan, errChan)
+	go s.repo.FindAllWallets(walletsChan, errChan)
 	walletEntities := <-walletsChan
 	err := <-errChan
 
@@ -37,7 +37,7 @@ func (s *WalletService) FindAllWallets() ([]*models.Wallet, error) {
 }
 func (s *WalletService) FindWalletById(id string) (*models.Wallet, error) {
 	walletChan, errChan := utils.MakeDataAndErrorChannels[entities.WalletEntity]()
-	s.repo.FindWalletById(id, walletChan, errChan)
+	go s.repo.FindWalletById(id, walletChan, errChan)
 	wallet := <-walletChan
 	err := <-errChan
 
@@ -50,7 +50,7 @@ func (s *WalletService) FindWalletById(id string) (*models.Wallet, error) {
 func (s *WalletService) CreateNewWallet(req *models.WalletRequest) (*models.Wallet, error) {
 	errChan := make(chan error, 1)
 	wallet := models.NewWalletEntity(req)
-	s.repo.CreateNewWallet(wallet, errChan)
+	go s.repo.CreateNewWallet(wallet, errChan)
 	err := <-errChan
 
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *WalletService) CreateNewWallet(req *models.WalletRequest) (*models.Wall
 func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*models.Wallet, error) {
 	//get wallet by id
 	walletChan, errChan := utils.MakeDataAndErrorChannels[entities.WalletEntity]()
-	s.repo.FindWalletById(id, walletChan, errChan)
+	go s.repo.FindWalletById(id, walletChan, errChan)
 	walletEntity := <-walletChan
 	err := <-errChan
 	if err != nil {
@@ -79,7 +79,7 @@ func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*mod
 	walletEntity.UpdatedAt = &updatedAt
 
 	errChan = make(chan error, 1)
-	s.repo.UpdateWallet(walletEntity, errChan)
+	go s.repo.UpdateWallet(walletEntity, errChan)
 	if err = <-errChan; err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *WalletService) UpdateWallet(id string, req *models.WalletRequest) (*mod
 }
 func (s *WalletService) GetWalletsCount(id string) (*int64, error) {
 	walletCountChan, errChan := utils.MakeDataAndErrorChannels[int64]()
-	s.repo.GetWalletsCount(id, walletCountChan, errChan)
+	go s.repo.GetWalletsCount(id, walletCountChan, errChan)
 	walletCount := <-walletCountChan
 	err := <-errChan
 

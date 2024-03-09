@@ -75,6 +75,8 @@ func (repo *WalletRepository) GetWalletsCount(owner string, dataChan chan *int64
 
 	dataChan <- &count
 	errChan <- nil
+
+	log.Printf("Owner %s has %d wallets\n", owner, count)
 }
 
 func (repo *WalletRepository) WalletExist(entity *entities.WalletEntity, dataChan chan bool, errChan chan error) {
