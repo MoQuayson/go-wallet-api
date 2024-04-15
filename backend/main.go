@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"go-wallet-api/config"
-	"go-wallet-api/features/shared/utils/validations"
+	"go-wallet-api/configs"
+	"go-wallet-api/database"
+	"go-wallet-api/database/seeders"
 	"go-wallet-api/internal"
 	"go-wallet-api/routes"
 	"log"
@@ -16,16 +17,20 @@ import (
 )
 
 func main() {
+	internal.InitializeDependencies()
+	// migrate tables
+	database.MigrateEntities()
+
+	// seed data
+	seeders.SeedEntityData()
+
 	app := fiber.New()
-	app.Use(limiter.New(config.AddRateLimiter())) //set rate limiter
-	app.Use(cors.New(config.AddCORS()))           //set CORS
+	app.Use(limiter.New(configs.AddRateLimiter())) //set rate limiter
+	app.Use(cors.New(configs.AddCORS()))           //set CORS
 	app.Use(logger.New())
 
 	api := app.Group("/api")
 
-	validations.InitValidation() //enable validation
-	config.ConnectDatabase()
-	internal.InitializeDependencies()
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.Status(200).SendString("E-Wallet API")
 	})

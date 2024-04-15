@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	walletDI "go-wallet-api/features/wallet/di"
-	"go-wallet-api/features/wallet/pkg"
+	"fmt"
+	"go-wallet-api/features/shared/utils/enums"
 )
 
-const MaxWalletCount = 5
+const (
+	MaxWalletCount = 5
+)
 
-func getWalletService() pkg.IWalletService {
-	return walletDI.WithWalletInjector.Service
-}
+var (
+	MaxWalletCountMsg = enums.ResponseMsg(fmt.Sprintf("Cannot have more than %v wallets", MaxWalletCount))
+)
