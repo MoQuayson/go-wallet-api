@@ -1,10 +1,12 @@
 package configs
 
 import (
+	"database/sql"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"time"
 )
 
 type DatabaseEnvConfig struct {
@@ -32,7 +34,30 @@ func ConnectToDatabase(cfg *DatabaseEnvConfig, dbChan chan *gorm.DB, errChan cha
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s  sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	//db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	//	Logger: logger.Default.LogMode(logger.Info),
+	//})
+
+	sqlDB, err := sql.Open("pgx", dsn)
+
+	if err != nil {
+		dbChan <- nil
+		errChan <- err
+		return
+	}
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	sqlDB.SetMaxIdleConns(10)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	sqlDB.SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		Conn: sqlDB,
+	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 

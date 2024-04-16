@@ -40,5 +40,5 @@ func main() {
 	routes.RegisterAuthRoutes(api)
 	routes.RegisterWalletRoutes(api)
 
-	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
+	log.Fatal(app.Listen(fmt.Sprintf("0.0.0.0:%s", os.Getenv("PORT"))))
 }
