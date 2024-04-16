@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"go-wallet-api/features/wallet/business_logic/app/entities"
+	"go-wallet-api/features/wallet/business_logic/entities"
 )
 
 type IWalletRepository interface {

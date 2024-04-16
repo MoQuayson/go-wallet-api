@@ -1,7 +1,7 @@
 package di
 
 import (
-	"go-wallet-api/features/wallet/business_logic/app/repository"
+	"go-wallet-api/features/wallet/business_logic/repository"
 	"go-wallet-api/features/wallet/business_logic/services"
 	"go-wallet-api/features/wallet/pkg"
 	"gorm.io/gorm"

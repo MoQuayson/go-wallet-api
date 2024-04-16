@@ -2,8 +2,9 @@ package services
 
 import (
 	"go-wallet-api/features/shared/utils"
-	"go-wallet-api/features/users/business_logic/app/entities"
-	"go-wallet-api/features/users/business_logic/app/models"
+	"go-wallet-api/features/users/business_logic/entities"
+	"go-wallet-api/features/users/business_logic/models"
+	"go-wallet-api/features/users/business_logic/requests"
 	"go-wallet-api/features/users/pkg"
 )
 
@@ -44,7 +45,7 @@ func (s *UserService) FindUserById(id string) (*models.User, error) {
 	}
 	return models.NewUserModelWithUserEntity(userEntity), nil
 }
-func (s *UserService) CreateNewUser(req *models.UserRequest) (*models.User, error) {
+func (s *UserService) CreateNewUser(req *requests.UserRequest) (*models.User, error) {
 	errChan := make(chan error, 1)
 	user := models.NewUserEntity(req)
 	go s.repo.CreateNewUser(user, errChan)
@@ -55,7 +56,7 @@ func (s *UserService) CreateNewUser(req *models.UserRequest) (*models.User, erro
 	}
 	return models.NewUserModelWithUserEntity(user), nil
 }
-func (s *UserService) UpdateUser(id string, req *models.UserRequest) (*models.User, error) {
+func (s *UserService) UpdateUser(id string, req *requests.UserRequest) (*models.User, error) {
 	//get user by id
 	userChan, errChan := utils.MakeDataAndErrorChannels[entities.UserEntity]()
 	go s.repo.FindUserById(id, userChan, errChan)

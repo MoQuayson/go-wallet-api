@@ -1,14 +1,14 @@
 package middlewares
 
 import (
-	userModel "go-wallet-api/features/users/business_logic/app/models"
+	userModel "go-wallet-api/features/users/business_logic/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofrs/uuid"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Gets user claims/ information from jwt token
+// GetUserClaims Gets user claims information from jwt token
 func GetUserClaims(ctx *fiber.Ctx) *userModel.User {
 	data := ctx.Locals("user").(*jwt.Token)
 	claims := data.Claims.(jwt.MapClaims)
@@ -16,14 +16,6 @@ func GetUserClaims(ctx *fiber.Ctx) *userModel.User {
 	if claims == nil {
 		return nil
 	}
-
-	//return &userModel.User{
-	//	ID:       uuid.FromStringOrNil(claims["id"].(string)),
-	//	Name:     models.GetStringFromInterface(claims["name"]),
-	//	Email:    models.GetStringFromInterface(claims["email"]),
-	//	PhoneNum: models.ConvertToNullString(claims["phone_num"]),
-	//	Role:     models.GetStringFromInterface(claims["role"]),
-	//}
 
 	phoneNumClaim := getStringFromInterface(claims["phone_num"])
 

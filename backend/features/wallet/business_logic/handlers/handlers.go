@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	shared "go-wallet-api/features/shared/models"
 	"go-wallet-api/features/shared/utils/enums"
-	"go-wallet-api/features/wallet/business_logic/app/models"
+	models2 "go-wallet-api/features/wallet/business_logic/models"
+	"go-wallet-api/features/wallet/di"
 	"log"
 	"net/http"
 )
@@ -13,7 +13,7 @@ import (
 // GetAllWalletsHandler Get All Wallets
 func GetAllWalletsHandler(ctx *fiber.Ctx) error {
 
-	s := getWalletService()
+	s := di.WithWalletInjector.Service
 	wallets, err := s.FindAllWallets()
 	if err != nil {
 		return ctx.Status(500).JSON(&shared.APIResponse{
@@ -32,7 +32,7 @@ func GetAllWalletsHandler(ctx *fiber.Ctx) error {
 func GetWalletByIdHandler(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 
-	s := getWalletService()
+	s := di.WithWalletInjector.Service
 	wallet, err := s.FindWalletById(id)
 	if err != nil {
 		return ctx.Status(500).JSON(&shared.APIResponse{
@@ -58,18 +58,17 @@ func GetWalletByIdHandler(ctx *fiber.Ctx) error {
 }
 
 func CreateWalletHandler(ctx *fiber.Ctx) error {
-	req := &models.WalletRequest{}
-	var wallet *models.Wallet
-	var err error
+	req := &models2.WalletRequest{}
+	var wallet *models2.Wallet
 
-	if err = ctx.BodyParser(req); err != nil {
+	if err := ctx.BodyParser(req); err != nil {
 		return ctx.Status(500).JSON(&shared.APIResponse{
 			Code:    500,
 			Message: enums.ResponseMsg_CreateWalletErr,
 		})
 	}
 
-	s := getWalletService()
+	s := di.WithWalletInjector.Service
 
 	walletCount, err := s.GetWalletsCount(req.Owner)
 
@@ -83,7 +82,7 @@ func CreateWalletHandler(ctx *fiber.Ctx) error {
 	if *walletCount >= int64(MaxWalletCount) {
 		return ctx.Status(http.StatusBadRequest).JSON(&shared.APIResponse{
 			Code:    http.StatusBadRequest,
-			Message: fmt.Sprintf("Cannot have more than %v wallets", MaxWalletCount),
+			Message: MaxWalletCountMsg,
 		})
 	}
 
@@ -102,7 +101,7 @@ func CreateWalletHandler(ctx *fiber.Ctx) error {
 }
 
 func UpdateWalletHandler(ctx *fiber.Ctx) error {
-	req := &models.WalletRequest{}
+	req := &models2.WalletRequest{}
 	walletId := ctx.Params("id")
 
 	if err := ctx.BodyParser(req); err != nil {
@@ -112,7 +111,7 @@ func UpdateWalletHandler(ctx *fiber.Ctx) error {
 		})
 	}
 
-	s := getWalletService()
+	s := di.WithWalletInjector.Service
 	wallet, err := s.FindWalletById(walletId)
 	if err != nil {
 		log.Printf("%s in UpdateWalletHandler function", err)
@@ -145,7 +144,7 @@ func UpdateWalletHandler(ctx *fiber.Ctx) error {
 // DeleteWalletHandler for delete wallet route
 func DeleteWalletHandler(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	s := getWalletService()
+	s := di.WithWalletInjector.Service
 
 	if err := s.DeleteWallet(id); err != nil {
 		return ctx.Status(500).JSON(&shared.APIResponse{

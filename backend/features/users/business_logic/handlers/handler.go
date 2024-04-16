@@ -2,8 +2,9 @@ package handlers
 
 import (
 	shared "go-wallet-api/features/shared/models"
+	"go-wallet-api/features/shared/utils"
 	"go-wallet-api/features/shared/utils/enums"
-	"go-wallet-api/features/users/business_logic/app/models"
+	"go-wallet-api/features/users/business_logic/requests"
 	userDI "go-wallet-api/features/users/di"
 	"log"
 
@@ -51,7 +52,7 @@ func GetUserByIdHandler(ctx *fiber.Ctx) error {
 
 // CreateUserHandler create new user
 func CreateUserHandler(ctx *fiber.Ctx) error {
-	req := &models.UserRequest{}
+	req := &requests.UserRequest{}
 
 	srv := userDI.WithUserInjector.Service
 
@@ -80,7 +81,7 @@ func CreateUserHandler(ctx *fiber.Ctx) error {
 }
 
 func UpdateUserHandler(ctx *fiber.Ctx) error {
-	req := &models.UserRequest{}
+	req := &requests.UserRequest{}
 	userId := ctx.Params("id")
 
 	if err := ctx.BodyParser(&req); err != nil {
@@ -95,7 +96,7 @@ func UpdateUserHandler(ctx *fiber.Ctx) error {
 
 	if err != nil {
 		log.Println(err)
-		return returnErrorResponse(ctx, enums.ResponseMsg_GET_USER_ERR)
+		return utils.SetErrorResponseMessage(ctx, enums.ResponseMsg_GET_USER_ERR)
 	}
 
 	return ctx.Status(200).JSON(&shared.APIResponse{
@@ -112,7 +113,7 @@ func DeleteUserHandler(ctx *fiber.Ctx) error {
 
 	if err := srv.DeleteUser(id); err != nil {
 		log.Println(err)
-		return returnErrorResponse(ctx, enums.ResponseMsg_DELETE_USER_ERR)
+		return utils.SetErrorResponseMessage(ctx, enums.ResponseMsg_DELETE_USER_ERR)
 	}
 
 	return ctx.Status(200).JSON(&shared.APIResponse{
