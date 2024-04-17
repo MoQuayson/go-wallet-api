@@ -39,10 +39,11 @@ func NewKeyStoreConfig() *KeyStoreConfig {
 
 func loadDBConfigFromEnv() *DatabaseEnvConfig {
 	return &DatabaseEnvConfig{
-		DBHost:     envy.Get("DB_HOST", "127.0.0.1"),
-		DBUser:     envy.Get("DB_USER", "postgres"),
-		DBName:     envy.Get("DB_NAME", "waste_mgmt_db"),
-		DBPort:     envy.Get("DB_PORT", "5432"),
-		DBPassword: envy.Get("DB_PASSWORD", ""),
+		DBHost:          envy.Get("DB_HOST", "127.0.0.1"),
+		DBUser:          envy.Get("DB_USER", "postgres"),
+		DBName:          envy.Get("DB_NAME", "wallet_db"),
+		DBPort:          envy.Get("DB_PORT", "5432"),
+		DBPassword:      envy.Get("DB_PASSWORD", ""),
+		DBConnectionUrl: envy.Get("DB_CONNECTION_URL", ""),
 	}
 }

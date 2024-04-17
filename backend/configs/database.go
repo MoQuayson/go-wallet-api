@@ -11,13 +11,14 @@ import (
 )
 
 type DatabaseEnvConfig struct {
-	DBHost     string
-	DBUser     string
-	DBName     string
-	DBPort     string
-	DBPassword string
-	DBType     string
-	MustSeed   string
+	DBHost          string
+	DBUser          string
+	DBName          string
+	DBPort          string
+	DBPassword      string
+	DBConnectionUrl string
+	DBType          string
+	MustSeed        string
 }
 
 // ConnectToDatabase Connects to a database
@@ -34,6 +35,10 @@ func ConnectToDatabase(cfg *DatabaseEnvConfig, dbChan chan *gorm.DB, errChan cha
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s  sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName, cfg.DBPassword)
+
+	if len(cfg.DBConnectionUrl) != 0 {
+		dsn = cfg.DBConnectionUrl
+	}
 
 	//db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 	//	Logger: logger.Default.LogMode(logger.Info),
@@ -78,6 +83,10 @@ func ConnectToDatabase(cfg *DatabaseEnvConfig, dbChan chan *gorm.DB, errChan cha
 func connectToDatabaseClient(cfg *DatabaseEnvConfig, errChan chan error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s  sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword)
+
+	if len(cfg.DBConnectionUrl) != 0 {
+		dsn = cfg.DBConnectionUrl
+	}
 
 	log.Println("DSN: ", dsn)
 	db, err := gorm.Open(postgres.Open(dsn))
