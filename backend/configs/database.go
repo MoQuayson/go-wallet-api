@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
 	"time"
 )
 
@@ -37,6 +38,8 @@ func ConnectToDatabase(cfg *DatabaseEnvConfig, dbChan chan *gorm.DB, errChan cha
 	//db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 	//	Logger: logger.Default.LogMode(logger.Info),
 	//})
+
+	log.Println("DSN2: ", dsn)
 
 	sqlDB, err := sql.Open("pgx", dsn)
 
@@ -76,9 +79,11 @@ func connectToDatabaseClient(cfg *DatabaseEnvConfig, errChan chan error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s  sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword)
 
+	log.Println("DSN: ", dsn)
 	db, err := gorm.Open(postgres.Open(dsn))
 
 	if err != nil {
+		log.Printf("connectToDatabaseClient Err: %v", err)
 		errChan <- err
 		return
 	}

@@ -8,23 +8,21 @@ services:
     environment:
       - PORT=8080
       - SEED_ADMIN=true
-      - DB_HOST=host.internal.docker
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
       - DB_NAME=wallet_db
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - JWT_SECRET=CJ0gC4XnKw3N0mH8NXY8yskp6hznQ4
-
-
     secrets:
       - db-password
     depends_on:
       - db-postgres
       - pgadmin
     networks:
-      - wallet-hub  
+      - wallet-hub
 
 
-  
   #DB
   db-postgres:
     container_name: db-postgres
@@ -35,11 +33,11 @@ services:
     volumes:
       - ./db/postgres/data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=blog
+      #- POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     ports:
-      - 5432:5432
+      - 5433:5432
     networks:
       - wallet-hub
   
@@ -54,9 +52,9 @@ services:
       - ./db/postgres/pgadmin:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: password 
+      PGADMIN_DEFAULT_PASSWORD: password
    
-    #Webserver proxy
+  #Webserver proxy
   proxy:
     container_name: web-server
     image: nginx
@@ -74,3 +72,8 @@ services:
 
 networks:
   wallet-hub:
+
+#secrets
+secrets:
+  db-password:
+    file: secrets/db_password.txt
