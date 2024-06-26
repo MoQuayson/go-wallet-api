@@ -1,0 +1,34 @@
+name: Wallet API CI
+
+on:
+  push:
+    branches: ["master","dev"]
+  pull_request:
+    branches: ["master","dev"]
+
+jobs:
+  wallet-api:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.21.x' ]
+        working-dir: ['backend']
+
+
+    steps:
+      - name: Checkout from code
+        uses: actions/checkout@v4
+
+      - name: Set up golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Build golang
+        run: go build -v ./...
+        working-directory: ${{ matrix.working-dir }}
+
+
