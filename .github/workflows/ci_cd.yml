@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: backend
-          file: ./Dockerfile
+          file: devops/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
 
