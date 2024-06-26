@@ -1,41 +1,25 @@
 # syntax=docker/dockerfile:1.4
 FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
 
-WORKDIR /code
+# Move to working directory /app
+WORKDIR /app
 
-ENV CGO_ENABLED 0
-ENV GOPATH /go
-ENV GOCACHE /go-build
+# Copy the code into the container
+COPY . .
 
-COPY ./../backend/go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod/cache \
-    go mod download
+# Build the application's binary
+RUN go build -o main main.go
 
-COPY ./../backend .
+# stage 2: run stage
+FROM alpine:latest
 
-RUN --mount=type=cache,target=/go/pkg/mod/cache \
-    --mount=type=cache,target=/go-build \
-    go build -o bin/backend main.go
+# Move to working directory /app
+WORKDIR /app
 
-CMD ["/code/bin/backend"]
+# Copy the code into the container from builder
+COPY --from=builder /app/main .
+COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/.env ./backend
 
-FROM builder as dev-envs
-
-RUN <<EOF
-apk update
-apk add git
-EOF
-
-RUN <<EOF
-addgroup -S docker
-adduser -S --shell /bin/bash --ingroup docker vscode
-EOF
-
-# install Docker tools (cli, buildx, compose)
-COPY --from=gloursdocker/docker / /
-
-CMD ["go", "run", "main.go"]
-
-FROM scratch
-COPY --from=builder /code/bin/backend /usr/local/bin/backend
-CMD ["/usr/local/bin/backend"]
+# Command to run the application when starting the container
+CMD ["/app/main"]
