@@ -31,9 +31,9 @@ jobs:
 
       - name: Fetch .env file content
         run: |
-          cat ${{ secrets.ENV_FILE }} > backend/.env
+          cat ${{ secrets.ENV_FILE }} > ../../backend/.env
           echo -n "Contents of .env file:\n"
-          cat backend/.env
+          cat ../../backend/.env
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
