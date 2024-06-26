@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: ["master","dev"]
 
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
 jobs:
   wallet-api:
     runs-on: ubuntu-latest
@@ -14,7 +19,6 @@ jobs:
         go-version: [ '1.21.x' ]
         working-dir: ['backend']
         env-file-location: ['backend/.env']
-
 
     steps:
       - name: Checkout from code
