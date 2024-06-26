@@ -24,6 +24,12 @@ jobs:
       - name: Checkout from code
         uses: actions/checkout@v4
 
+      - name: Fetch .env file content
+        run: |
+          cat ${{ secrets.ENV_FILE }} > .env
+          echo -n "Contents of .env file:\n"
+          cat .env
+
       - name: Set up golang
         uses: actions/setup-go@v4
         with:
@@ -32,12 +38,6 @@ jobs:
       - name: Build golang
         run: go build -v ./...
         working-directory: ${{ matrix.working-dir }}
-
-      - name: Fetch .env file content
-        run: |
-          cat ${{ secrets.ENV_FILE }} > .env
-          echo -n "Contents of .env file:\n"
-          cat .env
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
