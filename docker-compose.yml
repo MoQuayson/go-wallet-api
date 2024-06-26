@@ -3,7 +3,7 @@ services:
   backend:
     container_name: wallet-api
     build:
-      context: backend
+      context: devops
       target: builder
     environment:
       - PORT=8080

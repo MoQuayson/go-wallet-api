@@ -1,0 +1,67 @@
+name: Wallet API CI
+
+on:
+  push:
+    branches: ["master","dev"]
+  pull_request:
+    branches: ["master","dev"]
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+jobs:
+  wallet-api:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.21.x' ]
+        working-dir: ['backend']
+        env-file-location: ['backend/.env']
+
+    steps:
+      - name: Checkout from code
+        uses: actions/checkout@v4
+
+      - name: Fetch .env file content
+        run: |
+          cat ${{ secrets.ENV_FILE }} > backend/.env
+          echo -n "Contents of .env file:\n"
+          cat backend/.env
+
+      - name: Set up golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Build golang
+        run: go build -v ./...
+        working-directory: ${{ matrix.working-dir }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v5
+        with:
+          context: backend
+          file: devops/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
+
+      - name: Logout of DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          logout: true
