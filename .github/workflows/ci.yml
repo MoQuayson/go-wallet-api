@@ -29,9 +29,6 @@ jobs:
         run: go build -v ./...
         working-directory: ${{ matrix.working-dir }}
 
-      - name: Deploy to Dockerhub
-        uses: actions/docker@v4
-
       - name: Fetch .env file content
         run: |
           cat ${{ secrets.ENV_FILE }} > ${{ matrix.env-file-location }}
