@@ -34,9 +34,9 @@ jobs:
 
       - name: Fetch .env file content
         run: |
-          cat ${{ secrets.ENV_FILE }} > ${{ matrix.working-dir }}
+          cat ${{ secrets.ENV_FILE }} > ${{ env-file-location }}
           echo -n "Contents of .env file:\n"
-          cat ${{ matrix.working-dir }}
+          cat ${{ env-file-location }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -56,7 +56,7 @@ jobs:
           context: server
           file: devops/docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.REPO_NAME }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
 
       - name: Logout of DockerHub
         uses: docker/login-action@v3
