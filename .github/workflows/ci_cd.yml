@@ -26,9 +26,9 @@ jobs:
 
       - name: Fetch .env file content
         run: |
-          cat ${{ secrets.ENV_FILE }} > .env
+          cat ${{ secrets.ENV_FILE }} > backend/.env
           echo -n "Contents of .env file:\n"
-          cat .env
+          cat backend/.env
 
       - name: Set up golang
         uses: actions/setup-go@v4
